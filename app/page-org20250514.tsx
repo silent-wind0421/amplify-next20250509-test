@@ -8,8 +8,7 @@ import { useTheme, View, Image, Heading, Text, Button } from "@aws-amplify/ui-re
 import './app.css' 
 import { ThemeProvider, defaultTheme } from '@aws-amplify/ui-react';
 import { I18n } from '@aws-amplify/core';
-import { useEffect } from "react";
-import { signIn } from 'aws-amplify/auth';
+
 
 I18n.setLanguage('ja'); 
 I18n.putVocabularies({
@@ -32,45 +31,10 @@ const customTheme = {
     }
   }
 };
-/*
-Amplify.configure({
-  ...outputs,
-  Auth: {
-    region: 'ap-northeast-1',
-    userPoolId: 'ap-northeast-1_z60CJDdU7',
-    userPoolWebClientId: '6gnv9qldhuos82bvc7gkcudp7m',
-    authenticationFlowType: 'USER_PASSWORD_AUTH',
-  },
-});*/
 
-Amplify.configure({
-  Auth: {
-    Cognito: {
-      userPoolId: "ap-northeast-1_z60CJDdU7",
-      userPoolClientId: "6gnv9qldhuos82bvc7gkcudp7m",
-      identityPoolId: "ap-northeast-1:8390aebf-9353-4adf-9ada-0b096192993f",
-      loginWith: {
-        username: true,
-      },
-    /*  signUpVerificationMethod: "code",
-      userAttributes: {
-        email: {
-          required: true,
-        },
-      }, */
-      allowGuestAccess: false,
-      passwordFormat: {
-        minLength: 8,
-        requireLowercase: true,
-        requireUppercase: false,
-        requireNumbers: true,
-        requireSpecialCharacters: false,
-      },
-    },
-  },
-})
 
-//Amplify.configure(outputs); 
+
+Amplify.configure(outputs);
 
 const components = {
 
@@ -331,43 +295,11 @@ const formFields = {
   },
 };
 
-const handleSignIn = async () => {
-  try {
-    const userId = "test_cognito";
-    const password = "3#6FnZH8J\G";
-
-    const userData = await signIn(userId, password);
-
-    // 全体を確認
-    console.log("✅ ユーザーデータ:", userData);
-
-    // 特定の情報を確認
-    console.log("ユーザー名:", userData.username);
-    console.log("属性:", userData.attributes);
-    console.log("メールアドレス:", userData.attributes?.email);
-  } catch (error) {
-    console.error("❌ サインイン失敗:", error);
-  }
-};
-
-
 export default function App() {
-
-  /*useEffect(() => {
-    handleSignIn();
-  }, []);*/
-  
   return (
     <ThemeProvider theme={customTheme}>
-      <Authenticator formFields={formFields} components={components} hideSignUp={true} loginMechanisms={["username"]} >
-        {({ signOut, user }) => (
-        <main style={{ padding: "1.5rem" }}>
-          <h1>ようこそ、{user?.username} さん</h1>
-          <h1>元気ですか？ {user?.preferred_username} さん</h1>
-          <h1>{user?.email}</h1>
-          <button onClick={signOut}>ログアウト</button>
-        </main>
-      )}
+      <Authenticator formFields={formFields} components={components} hideSignUp={true} loginMechanisms={["username", "e-mail"]} >
+        {({ signOut }) => <button onClick={signOut}>ログアウト</button>}
       </Authenticator>
     </ThemeProvider>  
   );
