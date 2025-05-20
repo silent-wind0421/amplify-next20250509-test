@@ -8,8 +8,12 @@ import { useTheme, View, Image, Heading, Text, Button } from "@aws-amplify/ui-re
 import './app.css' 
 import { ThemeProvider, defaultTheme } from '@aws-amplify/ui-react';
 import { I18n } from '@aws-amplify/core';
-import { useEffect } from "react";
+import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
+import { useEffect, useState } from "react";
 import { signIn } from 'aws-amplify/auth';
+
+
+
 
 I18n.setLanguage('ja'); 
 I18n.putVocabularies({
@@ -32,16 +36,8 @@ const customTheme = {
     }
   }
 };
-/*
-Amplify.configure({
-  ...outputs,
-  Auth: {
-    region: 'ap-northeast-1',
-    userPoolId: 'ap-northeast-1_z60CJDdU7',
-    userPoolWebClientId: '6gnv9qldhuos82bvc7gkcudp7m',
-    authenticationFlowType: 'USER_PASSWORD_AUTH',
-  },
-});*/
+
+
 
 Amplify.configure({
   Auth: {
@@ -52,25 +48,9 @@ Amplify.configure({
       loginWith: {
         username: true,
       },
-    /*  signUpVerificationMethod: "code",
-      userAttributes: {
-        email: {
-          required: true,
-        },
-      }, */
-      allowGuestAccess: false,
-      passwordFormat: {
-        minLength: 8,
-        requireLowercase: true,
-        requireUppercase: false,
-        requireNumbers: true,
-        requireSpecialCharacters: false,
-      },
-    },
-  },
-})
+}}});
 
-//Amplify.configure(outputs); 
+// Amplify.configure(outputs); 
 
 const components = {
 
@@ -331,6 +311,7 @@ const formFields = {
   },
 };
 
+/*
 const handleSignIn = async () => {
   try {
     const userId = "test_cognito";
@@ -350,19 +331,31 @@ const handleSignIn = async () => {
   }
 };
 
-
+*/
 export default function App() {
 
   /*useEffect(() => {
     handleSignIn();
   }, []);*/
   
+  const [attr, setAttrResult] = useState<FetchUserAttributesOutput>();
+  const getCurrentUserAsync = async () => {
+    const result = await fetchUserAttributes();
+    console.log(result);
+    setAttrResult(result);
+  };
+
+   useEffect(() => {
+        getCurrentUserAsync();
+   }, []);
+
   return (
     <ThemeProvider theme={customTheme}>
       <Authenticator formFields={formFields} components={components} hideSignUp={true} loginMechanisms={["username"]} >
         {({ signOut, user }) => (
         <main style={{ padding: "1.5rem" }}>
           <h1>ようこそ、{user?.username} さん</h1>
+          <p>{JSON.stringify(attr)}</p>
           <h1>元気ですか？ {user?.preferred_username} さん</h1>
           <h1>{user?.email}</h1>
           <button onClick={signOut}>ログアウト</button>
