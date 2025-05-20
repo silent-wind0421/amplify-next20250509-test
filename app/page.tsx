@@ -8,8 +8,10 @@ import { useTheme, View, Image, Heading, Text, Button } from "@aws-amplify/ui-re
 import './app.css' 
 import { ThemeProvider, defaultTheme } from '@aws-amplify/ui-react';
 import { I18n } from '@aws-amplify/core';
-import { useEffect } from "react";
 import { signIn } from 'aws-amplify/auth';
+import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
+import { useEffect, useState } from "react";
+
 
 I18n.setLanguage('ja'); 
 I18n.putVocabularies({
@@ -42,7 +44,7 @@ Amplify.configure({
     authenticationFlowType: 'USER_PASSWORD_AUTH',
   },
 });*/
-
+/*
 Amplify.configure({
   Auth: {
     Cognito: {
@@ -52,12 +54,12 @@ Amplify.configure({
       loginWith: {
         username: true,
       },
-    /*  signUpVerificationMethod: "code",
+      signUpVerificationMethod: "code",
       userAttributes: {
         email: {
           required: true,
         },
-      }, */
+      }, 
       allowGuestAccess: false,
       passwordFormat: {
         minLength: 8,
@@ -68,7 +70,7 @@ Amplify.configure({
       },
     },
   },
-})
+})*/
 
 //Amplify.configure(outputs); 
 
@@ -350,26 +352,44 @@ const handleSignIn = async () => {
   }
 };
 
-
 export default function App() {
+  const [attr, setAttrResult] = useState<Record<string, string> | null>(null);
 
-  /*useEffect(() => {
-    handleSignIn();
-  }, []);*/
-  
   return (
     <ThemeProvider theme={customTheme}>
-      <Authenticator formFields={formFields} components={components} hideSignUp={true} loginMechanisms={["username"]} >
-        {({ signOut, user }) => (
-        <main style={{ padding: "1.5rem" }}>
-          <h1>ようこそ、{user?.username} さん</h1>
-          <h1>元気ですか？ {user?.preferred_username} さん</h1>
-          <h1>{user?.email}</h1>
-          <button onClick={signOut}>ログアウト</button>
-        </main>
-      )}
+      <Authenticator
+        formFields={formFields} 
+        components={components}    
+        hideSignUp={true}
+        loginMechanisms={["username"]}
+      >
+        {({ signOut, user }) => {
+          useEffect(() => {
+            const getCurrentUserAsync = async () => {
+              try {
+                const result = await fetchUserAttributes();
+                console.log("ユーザー属性:", result);
+                setAttrResult(result);
+              } catch (error) {
+                console.error("属性取得失敗:", error);
+              }
+            };
+
+            if (user) {
+              getCurrentUserAsync();
+            }
+          }, [user]); // ← userの変更時のみ発火
+
+          return (
+            <main style={{ padding: "1.5rem" }}>
+              <h1>ようこそ、{user?.username} さん</h1>
+              <h2>元気ですか？ {attr?.preferred_username} さん</h2>
+              <h2>更新日時: {attr?.updated_at}</h2>
+              <button onClick={signOut}>ログアウト</button>
+            </main>
+          );
+        }}
       </Authenticator>
-    </ThemeProvider>  
+    </ThemeProvider>
   );
 }
-
