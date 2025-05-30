@@ -38,7 +38,7 @@ const customTheme = {
 };
 
 
-
+/*
 Amplify.configure({
   Auth: {
     Cognito: {
@@ -48,11 +48,11 @@ Amplify.configure({
       loginWith: {
         username: true,
       },
-}}});
+}}});*/
 
 
 
-//Amplify.configure(outputs); 
+Amplify.configure(outputs); 
 
 const components = {
 
@@ -337,11 +337,13 @@ const handleSignIn = async () => {
 export default function App() {
 
    const [attr, setAttrResult] = useState<FetchUserAttributesOutput>();
+  {/*}
    const getCurrentUserAsync = async () => {
     const result = await fetchUserAttributes();
     console.log(result);
     setAttrResult(result);
   };
+  */}
 
   useEffect(() => {
     getCurrentUserAsync();
@@ -357,9 +359,9 @@ export default function App() {
       <Authenticator formFields={formFields} components={components} hideSignUp={true} loginMechanisms={["username"]} >
         {({ signOut, user }) => (
         <main style={{ padding: "1.5rem" }}>
-          <h1>ようこそ、{user?.username} さん</h1>
-          <p>{JSON.stringify(attr)}</p>
-          <h1>元気ですか？ {attr?.preferred_username} さん</h1>
+         <h1>ようこそ、{user?.username} さん</h1>
+         {/*}  <p>{JSON.stringify(attr)}</p>
+          <h1>元気ですか？ {attr?.preferred_username} さん</h1> */}
       
           <button onClick={signOut}>ログアウト</button>
         </main>
