@@ -1,7 +1,7 @@
 "use client";
 
 import { Amplify } from "aws-amplify";
-import { Authenticator, SignIn, useAuthenticator } from "@aws-amplify/ui-react";
+import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
 import outputs from "../amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import { useTheme, View, Image, Heading, Text, Button } from "@aws-amplify/ui-react";
@@ -11,8 +11,6 @@ import { I18n } from '@aws-amplify/core';
 import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
 import { useEffect, useState } from "react";
 import { signIn } from 'aws-amplify/auth';
-
-
 
 
 I18n.setLanguage('ja'); 
