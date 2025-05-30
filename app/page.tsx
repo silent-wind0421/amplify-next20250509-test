@@ -6,7 +6,7 @@ import outputs from "../amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import { useTheme, View, Image, Heading, Text, Button } from "@aws-amplify/ui-react";
 import './app.css' 
-import { ThemeProvider, defaultTheme } from '@aws-amplify/ui-react';
+import { ThemeProvider, createTheme, defaultTheme } from '@aws-amplify/ui-react';
 import { I18n } from '@aws-amplify/core';
 import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
 import { useEffect, useState } from "react";
@@ -22,18 +22,17 @@ I18n.putVocabularies({
   },
 });
 
-const customTheme = {
-  ...defaultTheme,
+const customTheme = createTheme({
+  name: 'custom-theme',
   tokens: {
-    ...defaultTheme.tokens,
     colors: {
-      ...defaultTheme.tokens.colors,
       background: {
-        primary: { value: '#F4F4F4;' } 
-      }
-    }
-  }
-};
+        primary: { value: '#f0f0f0' },
+      },
+    },
+  },
+});
+
 
 
 /*
@@ -89,9 +88,9 @@ const components = {
           <Button
             variation="primary"
             onClick={submitForm}
-            label="送信"
             style={{ backgroundColor: 'blue', color: 'white' }}
           >
+            送信
           </Button>
         </View>
       );
