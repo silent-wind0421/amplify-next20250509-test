@@ -55,17 +55,8 @@ Amplify.configure(outputs);
 const components = {
 
   SignIn: {
-    
-    FormFields() {
-      const { getFieldProps } = useAuthenticator();
-
-      return (
-        <View>
-          <TextField {...getFieldProps("username")} autoComplete="off" />
-          <TextField {...getFieldProps("password")} autoComplete="off" type="password" />
-        </View>
-      );
-    },
+   
+   
 
     Header() {
       const { tokens } = useTheme();
@@ -343,11 +334,12 @@ export default function App() {
   };
   */}
 
+  {/*
   useEffect(() => {
     getCurrentUserAsync();
   }, []);
 
-
+*/}
   /*useEffect(() => {
     handleSignIn();
   }, []);*/
