@@ -7,11 +7,22 @@ specifies that any user authenticated via an API key can "create", "read",
 "update", and "delete" any "Todo" records.
 =========================================================================*/
 const schema = a.schema({
-  Todo: a
+  Login: a
     .model({
-      content: a.string(),
+      uid: a.string().required(),
+      loginTime: a.string(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+
+    .authorization(allow => [
+    allow.authenticated().to(["read"]),
+    allow.owner()
+  ]),
+  
+  //.authorization((allow) => [allow.authenticated()]),
+
+    //.authorization((allow) => [allow.publicApiKey()]),
+
+   // .authorization(allow => [allow.owner()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -19,7 +30,9 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
+   // defaultAuthorizationMode: "apiKey",
+
+    defaultAuthorizationMode: 'userPool',
     apiKeyAuthorizationMode: {
       expiresInDays: 30,
     },
@@ -54,3 +67,5 @@ Fetch records from the database and use them in your frontend component.
 // const { data: todos } = await client.models.Todo.list()
 
 // return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>
+
+

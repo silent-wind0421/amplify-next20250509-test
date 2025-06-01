@@ -1,16 +1,20 @@
 "use client";
 
+
+import { useEffect, useRef, useState } from "react";
+import { generateClient } from "aws-amplify/data";
+import type { Schema } from "@/amplify/data/resource";
 import { Amplify } from "aws-amplify";
-import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
-import outputs from "../amplify_outputs.json";
+import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import { useTheme, View, Image, Heading, Text, Button } from "@aws-amplify/ui-react";
-import './app.css' 
+import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
+import { Subscription } from 'rxjs';
 import { ThemeProvider, createTheme, defaultTheme } from '@aws-amplify/ui-react';
 import { I18n } from '@aws-amplify/core';
-import { FetchUserAttributesOutput, fetchUserAttributes } from 'aws-amplify/auth';
-import { useEffect, useState } from "react";
 import { signIn } from 'aws-amplify/auth';
+import { useRouter } from 'next/navigation';
+
 
 
 I18n.setLanguage('ja'); 
@@ -33,7 +37,24 @@ const customTheme = createTheme({
   },
 });
 
+Amplify.configure(outputs); 
 
+const currentConfig = Amplify.getConfig(); 
+Amplify.configure({
+  ...currentConfig,
+
+  Auth: {
+    Cognito: {
+      userPoolId: "ap-northeast-1_z60CJDdU7",
+      userPoolClientId: "6gnv9qldhuos82bvc7gkcudp7m",
+      identityPoolId: "ap-northeast-1:8390aebf-9353-4adf-9ada-0b096192993f",
+      loginWith: {
+        username: true,
+      },
+  }}
+
+
+});  
 
 /*
 Amplify.configure({
@@ -48,15 +69,11 @@ Amplify.configure({
 }}});*/
 
 
-
-Amplify.configure(outputs); 
+const client = generateClient<Schema>();
 
 const components = {
 
   SignIn: {
-   
-   
-
     Header() {
       const { tokens } = useTheme();
 
@@ -88,7 +105,7 @@ const components = {
           <Button
             variation="primary"
             onClick={submitForm}
-            style={{ backgroundColor: 'blue', color: 'white' }}
+           /* style={{ backgroundColor: 'blue', color: 'white' }}*/
           >
             送信
           </Button>
@@ -96,136 +113,10 @@ const components = {
       );
     },
 
-    
-  },
+    }    
+  };
 
-  SignUp: {
-    Header() {
-      const { tokens } = useTheme();
-
-      return (
-        <Heading
-          padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
-          level={3}
-        >
-          Create a new account
-        </Heading>
-      );
-    },
-    Footer() {
-      const { toSignIn } = useAuthenticator();
-
-      return (
-        <View textAlign="center">
-          <Button
-            fontWeight="normal"
-            onClick={toSignIn}
-            size="small"
-            variation="link"
-          >
-            Back to Sign In
-          </Button>
-        </View>
-      );
-    },
-  },
-  ConfirmSignUp: {
-    Header() {
-      const { tokens } = useTheme();
-      return (
-        <Heading
-          padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
-          level={3}
-        >
-          Enter Information:
-        </Heading>
-      );
-    },
-    Footer() {
-      return <Text>Footer Information</Text>;
-    },
-  },
-  SetupTotp: {
-    Header() {
-      const { tokens } = useTheme();
-      return (
-        <Heading
-          padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
-          level={3}
-        >
-          Enter Information:
-        </Heading>
-      );
-    },
-    Footer() {
-      return <Text>Footer Information</Text>;
-    },
-  },
-  ConfirmSignIn: {
-    Header() {
-      const { tokens } = useTheme();
-      return (
-        <Heading
-          padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
-          level={3}
-        >
-          Enter Information:
-        </Heading>
-      );
-    },
-    Footer() {
-      return <Text>Footer Information</Text>;
-    },
-  },
-  ForgotPassword: {
-    Header() {
-      const { tokens } = useTheme();
-      return (
-        <Heading
-          padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
-          level={3}
-        >
-          Enter Information:
-        </Heading>
-      );
-    },
-    Footer() {
-      return <Text>Footer Information</Text>;
-    },
-  },
-  ConfirmResetPassword: {
-    Header() {
-      const { tokens } = useTheme();
-      return (
-        <Heading
-          padding={`${tokens.space.xl} 0 0 ${tokens.space.xl}`}
-          level={3}
-        >
-          Enter Information:
-        </Heading>
-      );
-    },
-    Footer() {
-      return <Text>Footer Information</Text>;
-    },
-  },
-  SelectMfaType: {
-    Header() {
-      return <Heading level={3}>Select Desired MFA Type</Heading>;
-    },
-    Footer() {
-      return <Text>Footer Information</Text>;
-    },
-  },
-  SetupEmail: {
-    Header() {
-      return <Heading level={3}>Email MFA Setup</Heading>;
-    },
-    Footer() {
-      return <Text>Footer Information</Text>;
-    },
-  },
-};
+  
 
 const formFields = {
   signIn: {
@@ -244,119 +135,125 @@ const formFields = {
     
 
   },
-  signUp: {
-    password: {
-      label: 'Password:',
-      isRequired: true,
-      order: 2,
-    },
-    confirm_password: {
-      label: 'Confirm Password:',
-      order: 1,
-    },
-  },
-  forceNewPassword: {
-    password: {
-      placeholder: 'Enter your Password:',
-    },
-  },
-  forgotPassword: {
-    username: {
-      placeholder: 'Enter your email:',
-    },
-  },
-  confirmResetPassword: {
-    confirmation_code: {
-      placeholder: 'Enter your Confirmation Code:',
-      label: 'New Label',
-      isRequired: false,
-    },
-    confirm_password: {
-      placeholder: 'Enter your Password Please:',
-    },
-  },
-  setupTotp: {
-    QR: {
-      totpIssuer: 'test issuer',
-      totpUsername: 'amplify_qr_test_user',
-    },
-    confirmation_code: {
-      label: 'New Label',
-      placeholder: 'Enter your Confirmation Code:',
-      isRequired: false,
-    },
-  },
-  confirmSignIn: {
-    confirmation_code: {
-      label: 'New Label',
-      placeholder: 'Enter your Confirmation Code:',
-      isRequired: false,
-    },
-  },
-  setupEmail: {
-    email: {
-      label: 'New Label',
-      placeholder: 'Please enter your Email:',
-    },
-  },
+  
 };
 
-/*
-const handleSignIn = async () => {
-  try {
-    const userId = "test_cognito";
-    const password = "3#6FnZH8J\G";
 
-    const userData = await signIn(userId, password);
+function LoginApp() {
+  const [logins, setLogins] = useState<Array<Schema["Login"]["type"]>>([]);
+  const [showHistory, setShowHistory] = useState(false);
+//  const subscriptionRef = useRef<ReturnType<typeof client.models.Todo.observeQuery> | null>(null);
+  const subscriptionRef = useRef<Subscription | null>(null);
 
-    // 全体を確認
-    console.log("✅ ユーザーデータ:", userData);
+  const { user, authStatus, signOut } = useAuthenticator(context => [
+    context.user,
+    context.authStatus,
+    context.signOut,
+  ]);
 
-    // 特定の情報を確認
-    console.log("ユーザー名:", userData.username);
-    console.log("属性:", userData.attributes);
-    console.log("メールアドレス:", userData.attributes?.email);
-  } catch (error) {
-    console.error("❌ サインイン失敗:", error);
-  }
-};
+  const isWritingRef = useRef(false);
 
-*/
-export default function App() {
-
-   const [attr, setAttrResult] = useState<FetchUserAttributesOutput>();
-  {/*}
-   const getCurrentUserAsync = async () => {
-    const result = await fetchUserAttributes();
-    console.log(result);
-    setAttrResult(result);
-  };
-  */}
-
-  {/*
+  // 🔸 書き込み処理（セッション＋useRef）
   useEffect(() => {
-    getCurrentUserAsync();
+    if (authStatus === "authenticated" && user && !isWritingRef.current) {
+      const loginId = user.signInDetails?.loginId;
+      console.log("loginId:", JSON.stringify(loginId)); 
+      if (!loginId) {
+        console.log("loginId is none") 
+        return;
+      }  
+
+      const sessionKey = `hasLogged_${loginId}`;
+      if (sessionStorage.getItem(sessionKey)) return;
+
+      isWritingRef.current = true;
+
+      const loginTime = new Date().toLocaleString("ja-JP", {
+        timeZone: "Asia/Tokyo",
+      });
+
+      client.models.Login.create({
+        uid: loginId,
+        loginTime:  loginTime
+      }).then(() => {
+        sessionStorage.setItem(sessionKey, "true");
+        console.log("書き込み成功");
+        console.log(loginId);
+        console.log(loginTime);
+      }).catch(err => {
+        console.error("書き込み失敗:", err);
+      });
+    }
+  }, [authStatus, user]);
+
+  // 🔸 「履歴を見る」ボタン押下時に購読開始
+  const handleShowHistory = () => {
+    setShowHistory(true);
+    if (subscriptionRef.current) return; // 二重登録防止
+
+    const subscription = client.models.Login.observeQuery().subscribe({
+      next: (data) => {
+        const sorted = [...data.items]
+          .filter((item) => item.loginTime)
+          .sort((a, b) =>
+            new Date(b.loginTime!).getTime() - new Date(a.loginTime!).getTime()
+          )
+          .slice(0, 5);
+        setLogins(sorted);
+      },
+    });
+
+    subscriptionRef.current = subscription;
+  };
+
+  // 🔸 アンマウント時に購読解除
+  useEffect(() => {
+    return () => {
+      subscriptionRef.current?.unsubscribe();
+    };
   }, []);
 
-*/}
-  /*useEffect(() => {
-    handleSignIn();
-  }, []);*/
-  
+  const handleSignOut = () => {
+    sessionStorage.clear();
+    signOut();
+    window.location.reload();
+  };
+
+ 
+
+  return (
+    <main style={{ padding: "1.5rem" }}>
+      <p>こんにちは、{user?.username} さん！</p>
+
+      {!showHistory && (
+        <button onClick={handleShowHistory}>履歴を見る</button>
+      )}
+
+      {showHistory && (
+        <ul>
+          {logins.map((login) => (
+             <li key={login.id} style={{ display: "flex", gap: "1rem", padding: "0.5rem", borderBottom: "1px solid #ccc" }}>
+              <div style={{ flex: 1, fontWeight: "bold" }}>{login.uid}</div>
+              <div style={{ flex: 2 }}>{login.loginTime}</div>
+             </li>
+          ))}
+        </ul>
+      )}
+
+      <div style={{ marginTop: "2rem" }}>
+        <button onClick={handleSignOut}>サインアウト</button>
+      </div>
+    </main>
+  );
+}
+
+export default function App() {
   return (
     <ThemeProvider theme={customTheme}>
       <Authenticator formFields={formFields} components={components} hideSignUp={true} loginMechanisms={["username"]} >
-        {({ signOut, user }) => (
-        <main style={{ padding: "1.5rem" }}>
-         <h1>ようこそ、{user?.username} さん</h1>
-         {/*}  <p>{JSON.stringify(attr)}</p>
-          <h1>元気ですか？ {attr?.preferred_username} さん</h1> */}
-      
-          <button onClick={signOut}>ログアウト</button>
-        </main>
-      )}
+        <LoginApp />
       </Authenticator>
-    </ThemeProvider>  
+    </ThemeProvider>
   );
 }
 

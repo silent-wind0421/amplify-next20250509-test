@@ -1,3 +1,16 @@
+import { defineAuth } from "@aws-amplify/backend";
+
+/**
+ * Define and configure your auth resource
+ * @see https://docs.amplify.aws/gen2/build-a-backend/auth
+ */
+export const auth = defineAuth({
+  loginWith: {
+    email: true,
+  },
+});
+
+/*
 import { referenceAuth } from '@aws-amplify/backend';
 
 export const auth = referenceAuth({
@@ -7,3 +20,4 @@ export const auth = referenceAuth({
   unauthRoleArn: 'arn:aws:iam::845531086046:role/service-role/unauthorizedrole',
   userPoolClientId: '6gnv9qldhuos82bvc7gkcudp7m',
 });
+*/
